@@ -31,16 +31,14 @@ module.exports = {
 
 	optimization: {
 		minimizer: [
-			new TerserPlugin( {
-				sourceMap: true,
-				terserOptions: {
-					output: {
-						// Preserve CKEditor 5 license comments.
-						comments: /^!/
+			( compiler ) => {
+				const TerserPlugin = require( 'terser-webpack-plugin' );
+				new TerserPlugin( {
+					terserOptions: {
+						compress: {}
 					}
-				},
-				extractComments: false
-			} )
+				} ).apply( compiler );
+			}
 		]
 	},
 
@@ -63,8 +61,14 @@ module.exports = {
 				test: /\.svg$/,
 				use: [ 'raw-loader' ]
 			},
+			// {
+			// 	test: /ckeditor5-[^/\\]+[/\\]theme[/\\]icons[/\\][^/\\]+\.svg$/,
+			//
+			// 	use: [ 'raw-loader' ]
+			// },
 			{
 				test: /\.css$/,
+
 				use: [
 					{
 						loader: 'style-loader',
@@ -75,17 +79,21 @@ module.exports = {
 							}
 						}
 					},
+					'css-loader',
 					{
 						loader: 'postcss-loader',
-						options: styles.getPostCssConfig( {
-							themeImporter: {
-								themePath: require.resolve( '@ckeditor/ckeditor5-theme-lark' )
-							},
-							minify: true
-						} )
+						options: {
+							postcssOptions: styles.getPostCssConfig( {
+								themeImporter: {
+									themePath: require.resolve( '@ckeditor/ckeditor5-theme-lark' )
+								},
+								minify: true
+							} )
+						}
 					}
 				]
 			}
+
 		]
 	}
 };
